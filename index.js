@@ -48,6 +48,7 @@ async function run() {
 
     const plantCollection = client.db("baganbari").collection("plants");
     const userCollection = client.db('baganbari').collection('users');
+    const shopCollection = client.db('baganbari').collections('shops');
 
     // get user Informations
     app.get('/users', async (req, res) => {
