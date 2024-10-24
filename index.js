@@ -25,12 +25,10 @@ app.use(function (req, res, next) {
 
 app.use(express.json())
 
-// user: baganbari
-// pass: BaganBari1234
 
 
 
-const uri = "mongodb+srv://baganbari:BaganBari1234@cluster0.kuzl5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = `mongodb+srv://${process.env.db_user}:${process.env.db_password}@cluster0.kuzl5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
