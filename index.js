@@ -46,7 +46,7 @@ async function run() {
 
     const plantCollection = client.db("baganbari").collection("plants");
     const userCollection = client.db('baganbari').collection('users');
-    const shopCollection = client.db('baganbari').collections('shops');
+    const shopCollection = client.db('baganbari').collection('shops');
 
     // get user Informations
     app.get('/users', async (req, res) => {
@@ -96,9 +96,30 @@ async function run() {
     })
 
     // get plants by shop name
-    // app.get('/allplants/shop-products', async(req, res)=>{
-    //   const result = 
-    // })
+    app.get('/shops', async (req, res) => {
+      const result = await shopCollection.find().toArray();
+      res.send(result);
+    })
+
+    // Search plants by name or keyword
+app.get('/plants', async (req, res) => {
+  const { name } = req.query; // Get the name from the query parameters
+  if (!name) {
+      return res.status(400).json({ error: 'No search keyword provided.' }); // Handle missing keyword
+  }
+
+  try {
+      // Find plants matching the keyword, case insensitive
+      const plants = await plantCollection.find({ name: { $regex: name, $options: 'i' } }).toArray();
+      res.json(plants); // Return the matching plants
+  } catch (error) {
+      console.error('Error searching plants:', error);
+      res.status(500).json({ error: 'Internal server error' }); // Send JSON error response
+  }
+});
+
+
+
 
 
     //get plants by id
