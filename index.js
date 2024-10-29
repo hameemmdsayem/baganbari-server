@@ -101,6 +101,32 @@ async function run() {
       res.send(result);
     })
 
+    app.patch("/shops/restrict/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+
+      const updatedStatus = {
+        $set: {
+          status: "restrict",
+        }
+      }
+      const result = await shopCollection.updateOne(filter, updatedStatus);
+      res.send(result);
+  })
+    app.patch("/shops/active/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+
+      const updatedStatus = {
+        $set: {
+          status: "active",
+        }
+      }
+
+      const result = await shopCollection.updateOne(filter, updatedStatus);
+      res.send(result);
+    })
+
     // Search plants by name or keyword
 app.get('/plants', async (req, res) => {
   const { name } = req.query; // Get the name from the query parameters
