@@ -80,6 +80,12 @@ async function run() {
       res.send(result);
     })
 
+    //get all plants data
+    app.get('/allplants', async (req, res) => {
+      const result = await plantCollection.find().toArray();
+      res.send(result);
+    })
+
 
     //get flowers
     app.get('/allplants/flowers', async (req, res) => {
@@ -112,7 +118,7 @@ async function run() {
       }
       const result = await shopCollection.updateOne(filter, updatedStatus);
       res.send(result);
-  })
+    })
     app.patch("/shops/active/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
@@ -128,21 +134,21 @@ async function run() {
     })
 
     // Search plants by name or keyword
-app.get('/plants', async (req, res) => {
-  const { name } = req.query; // Get the name from the query parameters
-  if (!name) {
-      return res.status(400).json({ error: 'No search keyword provided.' }); // Handle missing keyword
-  }
+    app.get('/plants', async (req, res) => {
+      const { name } = req.query; // Get the name from the query parameters
+      if (!name) {
+        return res.status(400).json({ error: 'No search keyword provided.' }); // Handle missing keyword
+      }
 
-  try {
-      // Find plants matching the keyword, case insensitive
-      const plants = await plantCollection.find({ name: { $regex: name, $options: 'i' } }).toArray();
-      res.json(plants); // Return the matching plants
-  } catch (error) {
-      console.error('Error searching plants:', error);
-      res.status(500).json({ error: 'Internal server error' }); // Send JSON error response
-  }
-});
+      try {
+        // Find plants matching the keyword, case insensitive
+        const plants = await plantCollection.find({ name: { $regex: name, $options: 'i' } }).toArray();
+        res.json(plants); // Return the matching plants
+      } catch (error) {
+        console.error('Error searching plants:', error);
+        res.status(500).json({ error: 'Internal server error' }); // Send JSON error response
+      }
+    });
 
 
 
@@ -171,6 +177,51 @@ app.get('/plants', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
       }
     });
+
+    //get shops by id
+    app.get('/shops/:id', async (req, res) => {
+      const id = req.params.id;
+
+      // Check if the ID is a valid ObjectId
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ error: 'Invalid ID format. It must be a 24-character hex string.' });
+      }
+
+      const query = { _id: new ObjectId(id) };
+
+      try {
+        const result = await shopCollection.findOne(query);
+        if (result) {
+          res.send(result);
+        } else {
+          res.status(404).json({ error: 'Shop not found' });
+        }
+      } catch (error) {
+        console.error('Error fetching shop by ID:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    });
+
+
+    // Get plants by shopName
+    app.get('/allplants/shopName/:name', async (req, res) => {
+      const shopName = req.params.name;  // Correct parameter name
+
+      const query = { shopName: shopName };  // Match documents by shopName
+
+      try {
+        const result = await plantCollection.find(query).toArray();  // No options needed for find
+        if (result && result.length > 0) {  // Check if results were found
+          res.send(result);
+        } else {
+          res.status(404).json({ error: 'Shop not found' });
+        }
+      } catch (error) {
+        console.error('Error fetching plants by shop name:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    });
+
 
 
 
