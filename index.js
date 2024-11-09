@@ -166,8 +166,9 @@ async function run() {
     })
 
     //get all plants data
-    app.get('/allplants', async (req, res) => {
-      const result = await plantCollection.find().toArray();
+    app.post('/allplants', async (req, res) => {
+      const plants = req.body
+      const result = await plantCollection.insertOne(plants);
       res.send(result);
     })
 
@@ -336,6 +337,46 @@ async function run() {
         }
       } catch (error) {
         console.error('Error fetching plants by shop name:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    });
+
+
+
+    
+    app.patch('/allplants/:id', async (req, res) => {
+      const id = req.params.id;
+    
+      // Validate ID format
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ error: 'Invalid ID format. It must be a 24-character hex string.' });
+      }
+    
+      const { name, image, description, price, careInstructions, category } = req.body;
+    
+      // Define the fields to update
+      const updatedInfo = {
+        $set: {
+          name,
+          image,
+          description,
+          price,
+          careInstructions,
+          category,
+        }
+      };
+    
+      const query = { _id: new ObjectId(id) };
+    
+      try {
+        const result = await plantCollection.updateOne(query, updatedInfo);
+        if (result.modifiedCount === 1) {  // Check if a document was modified
+          res.json({ message: 'Plant information updated successfully.' });
+        } else {
+          res.status(404).json({ error: 'Plant not found or no changes were made' });
+        }
+      } catch (error) {
+        console.error('Error updating plant information:', error);
         res.status(500).json({ error: 'Internal server error' });
       }
     });
