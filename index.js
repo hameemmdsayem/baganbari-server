@@ -88,6 +88,8 @@ async function run() {
       res.send({ user })
     })
 
+    
+
     // get user Informations
     app.get('/users', async (req, res) => {
       const result = await userCollection.find().toArray();
@@ -124,6 +126,37 @@ async function run() {
       const result = await userCollection.deleteOne(query);
       res.send(result)
     })
+
+    //get User by email
+    app.get('/users/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email }
+      const result = await userCollection.findOne(query)
+      
+      res.send(result)
+    })
+
+    app.patch("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+    
+      const { name, profilePicture } = req.body;
+    
+      const updatedInfo = {
+        $set: {
+          name: name,
+          profilePicture: profilePicture
+        }
+      };
+    
+      try {
+        const result = await userCollection.updateOne(query, updatedInfo);
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ error: "Failed to update user" });
+      }
+    });
+    
 
 
     //get all plants data
